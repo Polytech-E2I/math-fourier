@@ -1,0 +1,42 @@
+name: Build LaTeX document
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+
+    steps:
+#####################################################################
+      - name: Set up Git repository
+        uses: actions/checkout@v2
+#####################################################################
+      - name: Compile series-fourier
+        uses: xu-cheng/latex-action@v2
+        with:
+          working_directory: series-fourier/
+          root_file: main.tex
+      - name: Rename PDF file
+        run: |
+          mv series-fourier/main.pdf series-fourier.pdf
+#####################################################################
+      - name: Compile transformations-fourier
+        uses: xu-cheng/latex-action@v2
+        with:
+          working_directory: transformations-fourier/
+          root_file: main.tex
+      - name: Rename PDF file
+        run: |
+          mv transformations-fourier/main.pdf transformations-fourier.pdf
+#####################################################################
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            series-fourier.pdf
+            transformations-fourier.pdf
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
